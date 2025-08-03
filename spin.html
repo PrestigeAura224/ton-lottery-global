@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎡 Spin the Wheel - PrestigeAura</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; }
+    h1 { margin-top: 20px; }
+    #wheel { width: 300px; margin: 30px auto; }
+    #spinBtn, .btn-home {
+      padding: 15px 30px;
+      font-size: 20px;
+      background: linear-gradient(45deg, #00c6ff, #007bff);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin: 10px;
+    }
+    #spinBtn:hover, .btn-home:hover { transform: scale(1.05); }
+    .popup {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border: 2px solid #007bff;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    .popup h2 { margin: 0 0 10px; }
+    .leaderboard {
+      margin-top: 40px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .leaderboard h3 { text-align: center; }
+    .leaderboard ul { list-style: none; padding: 0; }
+    .leaderboard li { background: #f1f1f1; margin: 5px 0; padding: 10px; border-radius: 8px; }
+  </style>
+  <script src="js/i18n.js" defer></script>
+</head>
+<body>
+  <h1 data-i18n="spin_title">🎡 Try Your Luck!</h1>
+  <canvas id="wheel"></canvas>
+  <br>
+  <button id="spinBtn" data-i18n="spin_button">Spin Now</button>
+  <a href="index.html"><button class="btn-home" data-i18n="back_home">🏠 Back to Home</button></a>
+
+  <div id="popup" class="popup">
+    <h2 data-i18n="popup_congrats">🎉 Congratulations!</h2>
+    <p id="resultText"></p>
+    <button onclick="document.getElementById('popup').style.display='none'">
+      OK
+    </button>
+  </div>
+
+  <div class="leaderboard">
+    <h3 data-i18n="leaderboard_title">🔥 Today's Top Players</h3>
+    <ul id="leaderboardList">
+      <li>@alex · 92 TON · Won a Rolex!</li>
+      <li>@maria · 76 TON · Won a Gold Necklace!</li>
+      <li>@chen · 54 TON · Almost won a Royal Oak!</li>
+    </ul>
+  </div>
+
+  <script>
+    const prizes = [
+      { label: i18n("prize_watch"), weight: 1 },
+      { label: i18n("prize_gold"), weight: 2 },
+      { label: i18n("prize_coupon60"), weight: 5 },
+      { label: i18n("prize_coupon50"), weight: 7 },
+      { label: i18n("prize_thanks"), weight: 10 }
+    ];
+
+    const spinBtn = document.getElementById('spinBtn');
+    const popup = document.getElementById('popup');
+    const resultText = document.getElementById('resultText');
+
+    function weightedRandom(prizes) {
+      const totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
+      let rand = Math.random() * totalWeight;
+      for (const prize of prizes) {
+        if (rand < prize.weight) return prize.label;
+        rand -= prize.weight;
+      }
+    }
+
+    spinBtn.onclick = () => {
+      const prize = weightedRandom(prizes);
+      resultText.innerText = "You won: " + prize;
+      popup.style.display = "block";
+    };
+  </script>
+</body>
+</html>
