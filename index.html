@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PrestigeAura Global Lottery</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #f9f9f9; }
+    header { padding: 20px; }
+    .banner { width: 90%; max-width: 600px; margin: 20px auto; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .btn {
+      display: inline-block;
+      padding: 15px 30px;
+      margin-top: 20px;
+      background: linear-gradient(45deg, #007bff, #00c6ff);
+      color: #fff;
+      font-size: 20px;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+    .btn:hover { transform: scale(1.05); }
+    footer { margin-top: 30px; }
+    select { padding: 5px; font-size: 16px; }
+  </style>
+  <script src="js/i18n.js" defer></script>
+</head>
+<body>
+  <header>
+    <img src="assets/logo.svg" alt="PrestigeAura Logo" style="width:150px;">
+    <h1 data-i18n="welcome_title">🎡 PrestigeAura Global Lottery</h1>
+  </header>
+  <main>
+    <img src="assets/banner.jpg" alt="Lottery Banner" class="banner">
+    <p data-i18n="welcome_desc">
+      Pay TON and spin the wheel for your chance to win premium replica watches and prizes!
+    </p>
+    <a href="spin.html" class="btn" data-i18n="start_button">Start Lottery</a>
+  </main>
+  <footer>
+    <label data-i18n="choose_lang">🌍 Choose Language:</label>
+    <select id="languageSwitcher"></select>
+  </footer>
+</body>
+</html>
