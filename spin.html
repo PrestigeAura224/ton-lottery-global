@@ -29,14 +29,14 @@
     }
     #pointer {
       position: absolute;
-      top: -20px;
+      top: -15px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 30px solid gold;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-bottom: 25px solid gold;
     }
     #spinBtn {
       margin-top: 20px;
@@ -51,9 +51,7 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     }
-    #spinBtn:hover {
-      transform: scale(1.1);
-    }
+    #spinBtn:hover { transform: scale(1.1); }
     .popup {
       display: none;
       position: fixed;
@@ -76,9 +74,7 @@
       padding: 15px;
       border-radius: 12px;
     }
-    .leaderboard h3 {
-      margin-bottom: 10px;
-    }
+    .leaderboard h3 { margin-bottom: 10px; }
     .leaderboard ul {
       list-style: none;
       padding: 0;
@@ -107,140 +103,163 @@
   </style>
 </head>
 <body>
-  <h1>🎡 PrestigeAura Lottery</h1>
+  <h1 data-i18n="spin_title">🎡 PrestigeAura Lottery</h1>
 
   <div class="wheel-container">
     <canvas id="wheelCanvas" width="320" height="320"></canvas>
     <div id="pointer"></div>
   </div>
 
-  <button id="spinBtn">SPIN</button>
+  <button id="spinBtn" data-i18n="spin_now">SPIN</button>
   <br>
-  <a href="index.html" class="btn-home">🏠 Back to Home</a>
+  <a href="index.html" class="btn-home" data-i18n="back_home">🏠 Back to Home</a>
 
+  <!-- 弹窗 -->
   <div id="popup" class="popup">
     <h2 id="popupTitle">🎯 Jackpot Locked!</h2>
     <p id="popupText">Pay to unlock your chance at the jackpot!</p>
-    <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;">💳 Go Pay</button></a>
+    <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;" data-i18n="go_pay">💳 Go Pay</button></a>
   </div>
 
+  <!-- 假排行榜 -->
   <div class="leaderboard">
-    <h3>🔥 Live Winners Feed</h3>
+    <h3 data-i18n="live_feed">🔥 Live Winners Feed</h3>
     <ul id="leaderboardList"></ul>
   </div>
 
+  <!-- 背景音乐和音效 -->
+  <audio id="bgMusic" src="assets/bg-music.mp3" loop></audio>
+  <audio id="tickSound" src="assets/tick.mp3"></audio>
+  <audio id="winSound" src="assets/win.mp3"></audio>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spinBtn");
-    const popup = document.getElementById("popup");
-    const popupText = document.getElementById("popupText");
-    const payLink = document.getElementById("payLink");
-
-    const params = new URLSearchParams(window.location.search);
-    const mode = params.get("mode") || "unlimited";
-    let round = parseInt(params.get("round") || "1");
-
-    const prizesUnlimited = ["Watch", "Gold", "60% Coupon", "50% Coupon", "Thanks"];
-    const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
-    let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
-
-    // 绘制炫酷转盘
-    function drawWheel(prizes) {
-      const slices = prizes.length;
-      const angleStep = (2 * Math.PI) / slices;
-      for (let i = 0; i < slices; i++) {
-        const startAngle = i * angleStep;
-        const endAngle = startAngle + angleStep;
-        const gradient = ctx.createLinearGradient(0, 0, 320, 320);
-        gradient.addColorStop(0, i % 2 === 0 ? "#f7971e" : "#36d1dc");
-        gradient.addColorStop(1, i % 2 === 0 ? "#ffd200" : "#5b86e5");
-
-        ctx.beginPath();
-        ctx.moveTo(160, 160);
-        ctx.arc(160, 160, 160, startAngle, endAngle);
-        ctx.fillStyle = gradient;
-        ctx.fill();
-        ctx.strokeStyle = "#fff";
-        ctx.stroke();
-
-        ctx.save();
-        ctx.translate(160, 160);
-        ctx.rotate(startAngle + angleStep / 2);
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 14px Arial";
-        ctx.textAlign = "right";
-        ctx.fillText(prizes[i], 140, 10);
-        ctx.restore();
-      }
-    }
-    drawWheel(currentPrizes);
-
-    let isSpinning = false;
-    spinBtn.onclick = () => {
-      if (isSpinning) return;
-      isSpinning = true;
-
-      let angle = 0;
-      let spinTime = 0;
-      const spinTimeTotal = 3500; // 3.5秒旋转
-
-      function rotate() {
-        spinTime += 30;
-        if (spinTime >= spinTimeTotal) {
-          showPopup();
-          return;
-        }
-        angle += 0.35 + Math.random() * 0.05;
-        ctx.clearRect(0, 0, 320, 320);
-        ctx.save();
-        ctx.translate(160, 160);
-        ctx.rotate(angle);
-        ctx.translate(-160, -160);
-        drawWheel(currentPrizes);
-        ctx.restore();
-        requestAnimationFrame(rotate);
-      }
-      rotate();
-    };
-
-    function showPopup() {
-      popup.style.display = "block";
-      if (mode === "guaranteed") {
-        if (round < 4) {
-          popupText.innerText = `🎯 太遗憾了！大奖已锁定。\n✅ 下一轮将去掉 "${currentPrizes[0]}"`;
-        } else if (round === 4) {
-          popupText.innerText = "🎯 下一轮大奖即将揭晓（黄金饰品）！";
-        } else if (round === 5) {
-          popupText.innerText = "🎯 下一轮大奖即将揭晓（复刻手表）！";
-        }
-        payLink.href = `pay.html?mode=guaranteed&round=${round}`;
+    document.addEventListener("DOMContentLoaded", () => {
+      // 自动检测语言
+      let lang;
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+        lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
       } else {
-        popupText.innerText = "🎯 大奖已锁定！完成支付即可揭晓是否获得大奖。";
-        payLink.href = "pay.html?mode=unlimited";
+        lang = (navigator.language || navigator.userLanguage || "en").substring(0,2).toLowerCase();
       }
-    }
+      const supported = ["en","zh","es","fr","de","ru","ar","ja","ko"];
+      if (!supported.includes(lang)) lang = "en";
+      localStorage.setItem("selectedLang", lang);
+      loadLanguage(lang);
 
-    // 假排行榜
-    const feed = [
-      "@alex just won a Rolex with 92 TON!",
-      "@maria got a Gold Necklace with 76 TON!",
-      "@chen almost won a Royal Oak!",
-      "@david used 12 TON and won a 60% Coupon!",
-      "@li took 24 TON shot for a watch!",
-      "@sofia got 50% Coupon with 6 TON!"
-    ];
-    const list = document.getElementById("leaderboardList");
+      // 音乐控制
+      const bgMusic = document.getElementById("bgMusic");
+      const tickSound = document.getElementById("tickSound");
+      const winSound = document.getElementById("winSound");
 
-    function updateFeed() {
-      const msg = feed[Math.floor(Math.random() * feed.length)];
-      const li = document.createElement("li");
-      li.innerText = msg;
-      if (list.children.length > 5) list.removeChild(list.firstChild);
-      list.appendChild(li);
-    }
-    setInterval(updateFeed, 3000);
-    updateFeed();
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+      const spinBtn = document.getElementById("spinBtn");
+      const popup = document.getElementById("popup");
+      const popupText = document.getElementById("popupText");
+      const payLink = document.getElementById("payLink");
+
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get("mode") || "unlimited";
+      let round = parseInt(params.get("round") || "1");
+
+      const prizesUnlimited = ["Watch", "Gold", "60% Coupon", "50% Coupon", "Thanks"];
+      const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
+      let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
+
+      function drawWheel(prizes) {
+        const slices = prizes.length;
+        const angleStep = (2 * Math.PI) / slices;
+        for (let i = 0; i < slices; i++) {
+          const startAngle = i * angleStep;
+          const endAngle = startAngle + angleStep;
+          const gradient = ctx.createLinearGradient(0, 0, 320, 320);
+          gradient.addColorStop(0, i % 2 === 0 ? "#f7971e" : "#36d1dc");
+          gradient.addColorStop(1, i % 2 === 0 ? "#ffd200" : "#5b86e5");
+
+          ctx.beginPath();
+          ctx.moveTo(160, 160);
+          ctx.arc(160, 160, 160, startAngle, endAngle);
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          ctx.strokeStyle = "#fff";
+          ctx.stroke();
+
+          ctx.save();
+          ctx.translate(160, 160);
+          ctx.rotate(startAngle + angleStep / 2);
+          ctx.fillStyle = "#fff";
+          ctx.font = "bold 14px Arial";
+          ctx.textAlign = "right";
+          ctx.fillText(prizes[i], 140, 10);
+          ctx.restore();
+        }
+      }
+      drawWheel(currentPrizes);
+
+      let isSpinning = false;
+      spinBtn.onclick = () => {
+        if (isSpinning) return;
+        isSpinning = true;
+        bgMusic.play();
+
+        let angle = 0;
+        let spinTime = 0;
+        const spinTimeTotal = 4000;
+
+        function rotate() {
+          spinTime += 30;
+          if (spinTime >= spinTimeTotal) {
+            winSound.play();
+            showPopup();
+            return;
+          }
+          tickSound.play();
+          angle += 0.35 + Math.random() * 0.05;
+          ctx.clearRect(0, 0, 320, 320);
+          ctx.save();
+          ctx.translate(160, 160);
+          ctx.rotate(angle);
+          ctx.translate(-160, -160);
+          drawWheel(currentPrizes);
+          ctx.restore();
+          requestAnimationFrame(rotate);
+        }
+        rotate();
+      };
+
+      function showPopup() {
+        popup.style.display = "block";
+        if (mode === "guaranteed") {
+          const amounts = [1, 3, 6, 12, 24];
+          popupText.innerText = `💰 This round costs ${amounts[round-1]} TON.\n🎯 Next round removes "${currentPrizes[0]}".`;
+          payLink.href = `pay.html?mode=guaranteed&round=${round}`;
+        } else {
+          popupText.innerText = "🎯 Jackpot locked! Complete payment to reveal your prize.";
+          payLink.href = "pay.html?mode=unlimited";
+        }
+      }
+
+      // 假排行榜
+      const feed = [
+        "@alex won a Replica Rolex!",
+        "@maria got a Gold Necklace!",
+        "@chen won a Replica AP with 24 TON!",
+        "@li got a Gold Bracelet for 18 TON!"
+      ];
+      const list = document.getElementById("leaderboardList");
+      function updateFeed() {
+        const msg = feed[Math.floor(Math.random() * feed.length)];
+        const li = document.createElement("li");
+        li.innerText = msg;
+        if (list.children.length > 5) list.removeChild(list.firstChild);
+        list.appendChild(li);
+      }
+      setInterval(updateFeed, 4000);
+      updateFeed();
+    });
   </script>
 </body>
 </html>
+
