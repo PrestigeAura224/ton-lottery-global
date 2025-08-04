@@ -12,94 +12,33 @@
       color: white;
       text-align: center;
     }
-    h1 {
-      margin: 20px 0;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .wheel-container {
-      position: relative;
-      margin: 0 auto;
-      width: 320px;
-      height: 320px;
-    }
-    #wheelCanvas {
-      border-radius: 50%;
-      box-shadow: 0 0 20px rgba(255,255,255,0.6);
-    }
+    h1 { margin: 20px 0; font-size: 22px; font-weight: bold; }
+    .wheel-container { position: relative; margin: 0 auto; width: 320px; height: 320px; }
+    #wheelCanvas { border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
     #pointer {
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 18px solid transparent;
-      border-right: 18px solid transparent;
-      border-bottom: 25px solid gold;
+      position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-bottom: 30px solid gold;
     }
     #spinBtn {
-      margin-top: 20px;
-      padding: 15px 40px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #fff;
-      background: linear-gradient(45deg, #f7971e, #ffd200);
-      border: none;
-      border-radius: 50px;
-      cursor: pointer;
+      margin-top: 20px; padding: 15px 40px; font-size: 20px; font-weight: bold;
+      color: #fff; background: linear-gradient(45deg, #f7971e, #ffd200);
+      border: none; border-radius: 50px; cursor: pointer;
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      transition: transform 0.2s;
     }
-    #spinBtn:hover { transform: scale(1.1); }
     .popup {
-      display: none;
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #fff;
-      color: black;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-      z-index: 1000;
-      width: 80%;
-      max-width: 400px;
+      display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+      background: #fff; color: black; padding: 20px; border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4); z-index: 1000; width: 80%; max-width: 400px;
     }
     .leaderboard {
-      margin: 25px auto;
-      max-width: 360px;
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 12px;
+      margin: 25px auto; max-width: 360px;
+      background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px;
     }
-    .leaderboard h3 { margin-bottom: 10px; }
-    .leaderboard ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      font-size: 14px;
-      text-align: left;
-    }
-    .leaderboard li {
-      margin: 5px 0;
-      padding: 8px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 8px;
-    }
-    .btn-home {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: linear-gradient(45deg, #36d1dc, #5b86e5);
-      color: white;
-      border: none;
-      border-radius: 30px;
-      font-size: 16px;
-      cursor: pointer;
-      text-decoration: none;
-    }
+    .leaderboard ul { list-style: none; padding: 0; margin: 0; font-size: 14px; text-align: left; }
+    .leaderboard li { margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -111,23 +50,18 @@
   </div>
 
   <button id="spinBtn" data-i18n="spin_now">SPIN</button>
-  <br>
-  <a href="index.html" class="btn-home" data-i18n="back_home">🏠 Back to Home</a>
 
-  <!-- 弹窗 -->
   <div id="popup" class="popup">
-    <h2 id="popupTitle">🎯 Jackpot Locked!</h2>
-    <p id="popupText">Pay to unlock your chance at the jackpot!</p>
-    <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;" data-i18n="go_pay">💳 Go Pay</button></a>
+    <h2 id="popupTitle" data-i18n="result_title">🎯 Result</h2>
+    <p id="popupText">Processing...</p>
+    <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;" data-i18n="pay_now">💳 Pay Now</button></a>
   </div>
 
-  <!-- 假排行榜 -->
   <div class="leaderboard">
     <h3 data-i18n="live_feed">🔥 Live Winners Feed</h3>
     <ul id="leaderboardList"></ul>
   </div>
 
-  <!-- 背景音乐和音效 -->
   <audio id="bgMusic" src="assets/bg-music.mp3" loop></audio>
   <audio id="tickSound" src="assets/tick.mp3"></audio>
   <audio id="winSound" src="assets/win.mp3"></audio>
@@ -136,37 +70,40 @@
   <script src="js/i18n.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // 自动检测语言
+      // 多语言检测
       let lang;
       if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
         lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
       } else {
-        lang = (navigator.language || navigator.userLanguage || "en").substring(0,2).toLowerCase();
+        lang = (navigator.language || "en").substring(0,2).toLowerCase();
       }
       const supported = ["en","zh","es","fr","de","ru","ar","ja","ko"];
       if (!supported.includes(lang)) lang = "en";
       localStorage.setItem("selectedLang", lang);
       loadLanguage(lang);
 
-      // 音乐控制
       const bgMusic = document.getElementById("bgMusic");
       const tickSound = document.getElementById("tickSound");
       const winSound = document.getElementById("winSound");
-
-      const canvas = document.getElementById("wheelCanvas");
-      const ctx = canvas.getContext("2d");
-      const spinBtn = document.getElementById("spinBtn");
       const popup = document.getElementById("popup");
       const popupText = document.getElementById("popupText");
       const payLink = document.getElementById("payLink");
 
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
       const params = new URLSearchParams(window.location.search);
       const mode = params.get("mode") || "unlimited";
       let round = parseInt(params.get("round") || "1");
+      const prizeParam = params.get("prize");
 
       const prizesUnlimited = ["Watch", "Gold", "60% Coupon", "50% Coupon", "Thanks"];
       const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
       let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
+
+      if (prizeParam) {
+        popup.style.display = "block";
+        popupText.innerText = `🎉 ${lang === "zh" ? "恭喜获得" : "Congratulations! You won"} ${prizeParam}!`;
+      }
 
       function drawWheel(prizes) {
         const slices = prizes.length;
@@ -174,18 +111,12 @@
         for (let i = 0; i < slices; i++) {
           const startAngle = i * angleStep;
           const endAngle = startAngle + angleStep;
-          const gradient = ctx.createLinearGradient(0, 0, 320, 320);
-          gradient.addColorStop(0, i % 2 === 0 ? "#f7971e" : "#36d1dc");
-          gradient.addColorStop(1, i % 2 === 0 ? "#ffd200" : "#5b86e5");
-
           ctx.beginPath();
           ctx.moveTo(160, 160);
           ctx.arc(160, 160, 160, startAngle, endAngle);
-          ctx.fillStyle = gradient;
+          ctx.fillStyle = i % 2 === 0 ? "#f7971e" : "#36d1dc";
           ctx.fill();
-          ctx.strokeStyle = "#fff";
           ctx.stroke();
-
           ctx.save();
           ctx.translate(160, 160);
           ctx.rotate(startAngle + angleStep / 2);
@@ -198,21 +129,18 @@
       }
       drawWheel(currentPrizes);
 
-      let isSpinning = false;
-      spinBtn.onclick = () => {
-        if (isSpinning) return;
-        isSpinning = true;
+      document.getElementById("spinBtn").onclick = () => {
         bgMusic.play();
-
         let angle = 0;
         let spinTime = 0;
         const spinTimeTotal = 4000;
-
         function rotate() {
           spinTime += 30;
           if (spinTime >= spinTimeTotal) {
             winSound.play();
-            showPopup();
+            popup.style.display = "block";
+            popupText.innerText = lang === "zh" ? "大奖已锁定！完成支付揭晓结果" : "Jackpot locked! Complete payment to reveal.";
+            payLink.href = `pay.html?mode=${mode}&round=${round}`;
             return;
           }
           tickSound.play();
@@ -229,24 +157,11 @@
         rotate();
       };
 
-      function showPopup() {
-        popup.style.display = "block";
-        if (mode === "guaranteed") {
-          const amounts = [1, 3, 6, 12, 24];
-          popupText.innerText = `💰 This round costs ${amounts[round-1]} TON.\n🎯 Next round removes "${currentPrizes[0]}".`;
-          payLink.href = `pay.html?mode=guaranteed&round=${round}`;
-        } else {
-          popupText.innerText = "🎯 Jackpot locked! Complete payment to reveal your prize.";
-          payLink.href = "pay.html?mode=unlimited";
-        }
-      }
-
-      // 假排行榜
       const feed = [
         "@alex won a Replica Rolex!",
         "@maria got a Gold Necklace!",
-        "@chen won a Replica AP with 24 TON!",
-        "@li got a Gold Bracelet for 18 TON!"
+        "@chen won a Replica AP!",
+        "@li got a Gold Bracelet!"
       ];
       const list = document.getElementById("leaderboardList");
       function updateFeed() {
@@ -262,4 +177,5 @@
   </script>
 </body>
 </html>
+
 
