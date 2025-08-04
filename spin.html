@@ -3,21 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <title>🎡 Spin the Wheel - PrestigeAura</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; }
-    h1 { margin-top: 20px; }
-    #wheel { width: 300px; margin: 30px auto; border: 4px solid #007bff; border-radius: 50%; }
-    #spinBtn, .btn-home {
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      background: #fafafa;
+      margin: 0;
+    }
+    h1 { margin-top: 20px; font-size: 22px; }
+    #wheelCanvas { margin: 20px auto; display: block; }
+    #pointer {
+      position: absolute;
+      top: 135px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      width: 0; 
+      height: 0; 
+      border-left: 20px solid transparent; 
+      border-right: 20px solid transparent; 
+      border-bottom: 30px solid red;
+    }
+    #spinBtn {
       padding: 15px 30px;
       font-size: 20px;
-      background: linear-gradient(45deg, #00c6ff, #007bff);
+      background: linear-gradient(45deg, #007bff, #00c6ff);
       color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      margin: 10px;
     }
-    #spinBtn:hover, .btn-home:hover { transform: scale(1.05); }
+    #spinBtn:hover { transform: scale(1.05); }
     .popup {
       display: none;
       position: fixed;
@@ -35,33 +51,40 @@
     }
     .popup h2 { margin: 0 0 10px; }
     .leaderboard {
-      margin-top: 40px;
-      text-align: left;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 20px auto;
+      max-width: 350px;
       background: #fff;
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      text-align: left;
     }
-    .leaderboard h3 { text-align: center; }
-    .leaderboard ul { list-style: none; padding: 0; }
-    .leaderboard li { background: #f1f1f1; margin: 5px 0; padding: 10px; border-radius: 8px; font-size: 14px; }
+    .leaderboard h3 { text-align: center; margin-bottom: 10px; }
+    .leaderboard ul { list-style: none; padding: 0; margin: 0; }
+    .leaderboard li {
+      background: #f1f1f1;
+      margin: 5px 0;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
   </style>
-  <script src="js/i18n.js" defer></script>
 </head>
 <body>
-  <h1 id="modeTitle">🎡 Spin the Wheel!</h1>
-  <canvas id="wheel" width="300" height="300"></canvas>
-  <br>
-  <button id="spinBtn">Start Spin</button>
-  <a href="index.html"><button class="btn-home">🏠 Back to Home</button></a>
+  <h1>🎡 Spin the Wheel!</h1>
 
+  <div style="position: relative; width: 300px; margin: 0 auto;">
+    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    <div id="pointer"></div>
+  </div>
+
+  <button id="spinBtn">Start Spin</button>
+
+  <!-- 弹窗 -->
   <div id="popup" class="popup">
     <h2 id="popupTitle">🎯 Jackpot Locked!</h2>
     <p id="popupText">Pay to unlock your chance at the jackpot!</p>
-    <a id="payLink" href="#"><button class="btn-home">💳 Go Pay</button></a>
+    <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;">💳 Go Pay</button></a>
   </div>
 
   <!-- 假排行榜 -->
@@ -71,20 +94,23 @@
   </div>
 
   <script>
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const spinBtn = document.getElementById("spinBtn");
+    const popup = document.getElementById("popup");
+    const popupText = document.getElementById("popupText");
+    const payLink = document.getElementById("payLink");
+
     const params = new URLSearchParams(window.location.search);
     const mode = params.get("mode") || "unlimited";
     let round = parseInt(params.get("round") || "1");
 
-    const wheelCanvas = document.getElementById("wheel");
-    const ctx = wheelCanvas.getContext("2d");
-
     const prizesUnlimited = ["Watch", "Gold", "60% Coupon", "50% Coupon", "Thanks"];
     const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
-
     let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
 
+    // 绘制转盘
     function drawWheel(prizes) {
-      ctx.clearRect(0, 0, 300, 300);
       const slices = prizes.length;
       const angleStep = (2 * Math.PI) / slices;
       prizes.forEach((prize, i) => {
@@ -109,12 +135,35 @@
 
     drawWheel(currentPrizes);
 
-    const spinBtn = document.getElementById("spinBtn");
-    const popup = document.getElementById("popup");
-    const popupText = document.getElementById("popupText");
-    const payLink = document.getElementById("payLink");
-
+    let isSpinning = false;
     spinBtn.onclick = () => {
+      if (isSpinning) return;
+      isSpinning = true;
+
+      let angle = 0;
+      let spinTime = 0;
+      const spinTimeTotal = 3000; // 3秒旋转
+
+      function rotate() {
+        spinTime += 30;
+        if (spinTime >= spinTimeTotal) {
+          showPopup();
+          return;
+        }
+        angle += 0.3 + Math.random() * 0.1;
+        ctx.clearRect(0, 0, 300, 300);
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(angle);
+        ctx.translate(-150, -150);
+        drawWheel(currentPrizes);
+        ctx.restore();
+        requestAnimationFrame(rotate);
+      }
+      rotate();
+    };
+
+    function showPopup() {
       popup.style.display = "block";
       if (mode === "guaranteed") {
         if (round < 4) {
@@ -129,7 +178,7 @@
         popupText.innerText = "🎯 大奖已锁定！完成支付即可揭晓是否获得大奖。";
         payLink.href = "pay.html?mode=unlimited";
       }
-    };
+    }
 
     // 假排行榜逻辑
     const feed = [
@@ -152,8 +201,9 @@
       list.appendChild(li);
     }
 
-    setInterval(updateFeed, 3000); // 每3秒刷新一次
+    setInterval(updateFeed, 3000); // 每3秒刷一条
     updateFeed();
   </script>
 </body>
 </html>
+
