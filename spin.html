@@ -33,12 +33,25 @@
       background: #fff; color: black; padding: 20px; border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.4); z-index: 1000; width: 80%; max-width: 400px;
     }
+    .popup button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
     .leaderboard {
       margin: 25px auto; max-width: 360px;
       background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px;
     }
     .leaderboard ul { list-style: none; padding: 0; margin: 0; font-size: 14px; text-align: left; }
     .leaderboard li { margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; }
+    .btn-home {
+      display: inline-block; margin-top: 15px; padding: 10px 20px;
+      background: linear-gradient(45deg, #36d1dc, #5b86e5);
+      color: white; border: none; border-radius: 30px; font-size: 16px;
+      cursor: pointer; text-decoration: none;
+    }
   </style>
 </head>
 <body>
@@ -50,18 +63,24 @@
   </div>
 
   <button id="spinBtn" data-i18n="spin_now">SPIN</button>
+  <br>
+  <a href="index.html" class="btn-home" data-i18n="back_home">🏠 Back to Home</a>
 
+  <!-- 弹窗 -->
   <div id="popup" class="popup">
     <h2 id="popupTitle" data-i18n="result_title">🎯 Result</h2>
     <p id="popupText">Processing...</p>
-    <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;" data-i18n="pay_now">💳 Pay Now</button></a>
+    <button id="continueBtn" style="background:green;color:white;" data-i18n="continue_play">🔄 Continue</button>
+    <button onclick="document.getElementById('popup').style.display='none'" style="background:red;color:white;" data-i18n="close">❌ Close</button>
   </div>
 
+  <!-- 假排行榜 -->
   <div class="leaderboard">
     <h3 data-i18n="live_feed">🔥 Live Winners Feed</h3>
     <ul id="leaderboardList"></ul>
   </div>
 
+  <!-- 音效 -->
   <audio id="bgMusic" src="assets/bg-music.mp3" loop></audio>
   <audio id="tickSound" src="assets/tick.mp3"></audio>
   <audio id="winSound" src="assets/win.mp3"></audio>
@@ -70,14 +89,13 @@
   <script src="js/i18n.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // 多语言检测
       let lang;
       if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
         lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
       } else {
         lang = (navigator.language || "en").substring(0,2).toLowerCase();
       }
-      const supported = ["en","zh","es","fr","de","ru","ar","ja","ko"];
+      const supported = ["en","zh","es","fr","de","ru","ar","ja","ko","hi","pt","it","tr","vi","id"];
       if (!supported.includes(lang)) lang = "en";
       localStorage.setItem("selectedLang", lang);
       loadLanguage(lang);
@@ -87,7 +105,7 @@
       const winSound = document.getElementById("winSound");
       const popup = document.getElementById("popup");
       const popupText = document.getElementById("popupText");
-      const payLink = document.getElementById("payLink");
+      const continueBtn = document.getElementById("continueBtn");
 
       const canvas = document.getElementById("wheelCanvas");
       const ctx = canvas.getContext("2d");
@@ -102,7 +120,11 @@
 
       if (prizeParam) {
         popup.style.display = "block";
-        popupText.innerText = `🎉 ${lang === "zh" ? "恭喜获得" : "Congratulations! You won"} ${prizeParam}!`;
+        popupText.innerText = (lang==="zh" ? "🎉 恭喜你获得了 " : "🎉 Congratulations! You won ") + prizeParam + 
+          (mode==="guaranteed" ? 
+            (lang==="zh" ? "！下一轮将去掉 \""+currentPrizes[0]+"\"" : "! Next round removes \""+currentPrizes[0]+"\".") : 
+            (lang==="zh" ? "！再来一次？下一次也许就是大奖！" : "! Try again — maybe next time is the jackpot!")
+          );
       }
 
       function drawWheel(prizes) {
@@ -131,16 +153,16 @@
 
       document.getElementById("spinBtn").onclick = () => {
         bgMusic.play();
-        let angle = 0;
-        let spinTime = 0;
-        const spinTimeTotal = 4000;
+        let angle = 0, spinTime = 0, spinTimeTotal = 4000;
         function rotate() {
           spinTime += 30;
           if (spinTime >= spinTimeTotal) {
             winSound.play();
             popup.style.display = "block";
-            popupText.innerText = lang === "zh" ? "大奖已锁定！完成支付揭晓结果" : "Jackpot locked! Complete payment to reveal.";
-            payLink.href = `pay.html?mode=${mode}&round=${round}`;
+            popupText.innerText = lang==="zh" ? "大奖已锁定！完成支付揭晓结果" : "Jackpot locked! Complete payment to reveal.";
+            continueBtn.onclick = () => {
+              location.href = `pay.html?mode=${mode}&round=${round}`;
+            };
             return;
           }
           tickSound.play();
@@ -177,5 +199,4 @@
   </script>
 </body>
 </html>
-
 
