@@ -36,6 +36,7 @@
   <h1>💳 Complete Your Payment</h1>
   <div class="box">
     <p id="modeText"></p>
+    <p id="nextTip"></p>
     <img id="qrImage" src="assets/ton-qr.png" class="qr" alt="TON QR Code">
     <p><strong>Amount:</strong> <span id="amountText"></span></p>
     <p><strong>Address:</strong> <span id="walletAddress">Loading...</span></p>
@@ -47,27 +48,37 @@
     const mode = params.get("mode") || "unlimited";
     let round = parseInt(params.get("round") || "1");
 
-    let amount = 1; // default
+    // 默认金额和描述
+    let amount = 1;
     let desc = "Unlimited Draw";
+    let nextTip = "";
 
     if (mode === "guaranteed") {
-      // 百分百模式按轮次递增金额
+      // 百分百必中模式金额递增
       const amounts = [1, 3, 6, 12, 24];
       amount = amounts[round - 1] || 1;
       desc = `Guaranteed Draw - Round ${round}`;
+
+      // 下一轮提示逻辑
+      const tips = [
+        "✅ 下一轮将去掉“谢谢参与”",
+        "✅ 下一轮将去掉“5折优惠券”",
+        "✅ 下一轮将去掉“6折优惠券”",
+        "🎯 下一轮大奖即将揭晓（黄金饰品）",
+        "🎯 下一轮大奖即将揭晓（复刻手表）"
+      ];
+      nextTip = tips[round - 1] || "";
     }
 
-    document.getElementById("modeText").innerText =
-      `Mode: ${desc}\nPay ${amount} TON to continue`;
-
+    document.getElementById("modeText").innerText = `${desc}`;
     document.getElementById("amountText").innerText = amount + " TON";
-
-    // 占位：实际 TON 地址 & 二维码由 NowPayments 动态生成
     document.getElementById("walletAddress").innerText = "Dynamic Address (replace with API)";
+    document.getElementById("nextTip").innerText = nextTip;
 
-    // 支付完成后返回 spin.html
+    // 支付完成后进入下一轮
     document.getElementById("continueBtn").href =
       `spin.html?mode=${mode}&round=${round + 1}`;
   </script>
 </body>
 </html>
+
