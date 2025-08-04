@@ -2,92 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🎡 Spin the Wheel - PrestigeAura</title>
+  <title>🎡 PrestigeAura Spin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      text-align: center; 
-      background: #fafafa;
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       margin: 0;
+      color: white;
+      text-align: center;
     }
-    h1 { margin-top: 20px; font-size: 22px; }
-    #wheelCanvas { margin: 20px auto; display: block; }
+    h1 {
+      margin: 20px 0;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .wheel-container {
+      position: relative;
+      margin: 0 auto;
+      width: 320px;
+      height: 320px;
+    }
+    #wheelCanvas {
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(255,255,255,0.6);
+    }
     #pointer {
       position: absolute;
-      top: 135px; 
-      left: 50%; 
+      top: -20px;
+      left: 50%;
       transform: translateX(-50%);
-      width: 0; 
-      height: 0; 
-      border-left: 20px solid transparent; 
-      border-right: 20px solid transparent; 
-      border-bottom: 30px solid red;
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 30px solid gold;
     }
     #spinBtn {
-      padding: 15px 30px;
+      margin-top: 20px;
+      padding: 15px 40px;
       font-size: 20px;
-      background: linear-gradient(45deg, #007bff, #00c6ff);
-      color: white;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(45deg, #f7971e, #ffd200);
       border: none;
-      border-radius: 10px;
+      border-radius: 50px;
       cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
     }
-    #spinBtn:hover { transform: scale(1.05); }
+    #spinBtn:hover {
+      transform: scale(1.1);
+    }
     .popup {
       display: none;
       position: fixed;
       top: 30%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: white;
+      background: #fff;
+      color: black;
       padding: 20px;
-      border: 2px solid #007bff;
       border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
       z-index: 1000;
       width: 80%;
       max-width: 400px;
     }
-    .popup h2 { margin: 0 0 10px; }
     .leaderboard {
-      margin: 20px auto;
-      max-width: 350px;
-      background: #fff;
+      margin: 25px auto;
+      max-width: 360px;
+      background: rgba(255,255,255,0.1);
       padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      border-radius: 12px;
+    }
+    .leaderboard h3 {
+      margin-bottom: 10px;
+    }
+    .leaderboard ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 14px;
       text-align: left;
     }
-    .leaderboard h3 { text-align: center; margin-bottom: 10px; }
-    .leaderboard ul { list-style: none; padding: 0; margin: 0; }
     .leaderboard li {
-      background: #f1f1f1;
       margin: 5px 0;
       padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+    }
+    .btn-home {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: linear-gradient(45deg, #36d1dc, #5b86e5);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <h1>🎡 Spin the Wheel!</h1>
+  <h1>🎡 PrestigeAura Lottery</h1>
 
-  <div style="position: relative; width: 300px; margin: 0 auto;">
-    <canvas id="wheelCanvas" width="300" height="300"></canvas>
+  <div class="wheel-container">
+    <canvas id="wheelCanvas" width="320" height="320"></canvas>
     <div id="pointer"></div>
   </div>
 
-  <button id="spinBtn">Start Spin</button>
+  <button id="spinBtn">SPIN</button>
+  <br>
+  <a href="index.html" class="btn-home">🏠 Back to Home</a>
 
-  <!-- 弹窗 -->
   <div id="popup" class="popup">
     <h2 id="popupTitle">🎯 Jackpot Locked!</h2>
     <p id="popupText">Pay to unlock your chance at the jackpot!</p>
     <a id="payLink" href="#"><button style="padding:12px 20px;background:green;color:white;border:none;border-radius:8px;">💳 Go Pay</button></a>
   </div>
 
-  <!-- 假排行榜 -->
   <div class="leaderboard">
     <h3>🔥 Live Winners Feed</h3>
     <ul id="leaderboardList"></ul>
@@ -109,30 +145,35 @@
     const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
     let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
 
-    // 绘制转盘
+    // 绘制炫酷转盘
     function drawWheel(prizes) {
       const slices = prizes.length;
       const angleStep = (2 * Math.PI) / slices;
-      prizes.forEach((prize, i) => {
+      for (let i = 0; i < slices; i++) {
         const startAngle = i * angleStep;
         const endAngle = startAngle + angleStep;
-        ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.arc(150, 150, 150, startAngle, endAngle);
-        ctx.fillStyle = i % 2 === 0 ? "#f0f0f0" : "#d0d0d0";
-        ctx.fill();
-        ctx.stroke();
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(startAngle + angleStep / 2);
-        ctx.textAlign = "right";
-        ctx.fillStyle = "#000";
-        ctx.font = "14px Arial";
-        ctx.fillText(prize, 140, 10);
-        ctx.restore();
-      });
-    }
+        const gradient = ctx.createLinearGradient(0, 0, 320, 320);
+        gradient.addColorStop(0, i % 2 === 0 ? "#f7971e" : "#36d1dc");
+        gradient.addColorStop(1, i % 2 === 0 ? "#ffd200" : "#5b86e5");
 
+        ctx.beginPath();
+        ctx.moveTo(160, 160);
+        ctx.arc(160, 160, 160, startAngle, endAngle);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+        ctx.strokeStyle = "#fff";
+        ctx.stroke();
+
+        ctx.save();
+        ctx.translate(160, 160);
+        ctx.rotate(startAngle + angleStep / 2);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 14px Arial";
+        ctx.textAlign = "right";
+        ctx.fillText(prizes[i], 140, 10);
+        ctx.restore();
+      }
+    }
     drawWheel(currentPrizes);
 
     let isSpinning = false;
@@ -142,7 +183,7 @@
 
       let angle = 0;
       let spinTime = 0;
-      const spinTimeTotal = 3000; // 3秒旋转
+      const spinTimeTotal = 3500; // 3.5秒旋转
 
       function rotate() {
         spinTime += 30;
@@ -150,12 +191,12 @@
           showPopup();
           return;
         }
-        angle += 0.3 + Math.random() * 0.1;
-        ctx.clearRect(0, 0, 300, 300);
+        angle += 0.35 + Math.random() * 0.05;
+        ctx.clearRect(0, 0, 320, 320);
         ctx.save();
-        ctx.translate(150, 150);
+        ctx.translate(160, 160);
         ctx.rotate(angle);
-        ctx.translate(-150, -150);
+        ctx.translate(-160, -160);
         drawWheel(currentPrizes);
         ctx.restore();
         requestAnimationFrame(rotate);
@@ -180,7 +221,7 @@
       }
     }
 
-    // 假排行榜逻辑
+    // 假排行榜
     const feed = [
       "@alex just won a Rolex with 92 TON!",
       "@maria got a Gold Necklace with 76 TON!",
@@ -195,15 +236,11 @@
       const msg = feed[Math.floor(Math.random() * feed.length)];
       const li = document.createElement("li");
       li.innerText = msg;
-      if (list.children.length > 5) {
-        list.removeChild(list.firstChild);
-      }
+      if (list.children.length > 5) list.removeChild(list.firstChild);
       list.appendChild(li);
     }
-
-    setInterval(updateFeed, 3000); // 每3秒刷一条
+    setInterval(updateFeed, 3000);
     updateFeed();
   </script>
 </body>
 </html>
-
