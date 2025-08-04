@@ -1,55 +1,31 @@
 async function loadLanguage(lang) {
   try {
-    const response = await fetch(`lang/${lang}.json`);
-    const translations = await response.json();
-
+    const res = await fetch(`/js/lang/${lang}.json`);
+    if (!res.ok) throw new Error();
+    const translations = await res.json();
     document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
-      if (translations[key]) {
-        el.innerText = translations[key];
-      }
+      if (translations[key]) el.innerText = translations[key];
     });
-  } catch (error) {
-    console.error("Language load error:", error);
+  } catch (err) {
+    if (lang !== "en") {
+      console.warn(`Language ${lang} not found, fallback to English.`);
+      loadLanguage("en");
+    }
   }
 }
 
-function getBrowserLanguage() {
-  const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
-  if (tgLang) return tgLang.split("-")[0];
-  return navigator.language.split("-")[0];
-}
-
-function populateLanguageSwitcher() {
-  const langSwitcher = document.getElementById("languageSwitcher");
-  if (!langSwitcher) return;
-
-  const supportedLanguages = [
-    "en","zh","es","fr","de","ru","ja","ko","ar","pt","hi","id","tr","vi","it"
-  ];
-
-  supportedLanguages.forEach(lang => {
-    const option = document.createElement("option");
-    option.value = lang;
-    option.text = lang.toUpperCase();
-    langSwitcher.appendChild(option);
-  });
-
-  langSwitcher.addEventListener("change", () => {
-    const lang = langSwitcher.value;
-    loadLanguage(lang);
-    localStorage.setItem("selectedLang", lang);
-  });
-
-  const savedLang = localStorage.getItem("selectedLang") || getBrowserLanguage();
-  langSwitcher.value = supportedLanguages.includes(savedLang) ? savedLang : "en";
-  loadLanguage(langSwitcher.value);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
-  populateLanguageSwitcher();
-});
+  let lang;
+  if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+    lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
+  } else {
+    lang = (navigator.language || "en").substring(0,2).toLowerCase();
+  }
+  
+  const supported = ["en","zh","es","fr","de","ru","ar","ja","ko","hi","pt","it","tr","vi","id"];
+  if (!supported.includes(lang)) lang = "en";
 
-function i18n(key) {
-  return key; // fallback for dynamic text
-}
+  localStorage.setItem("selectedLang", lang);
+  loadLanguage(lang);
+});
