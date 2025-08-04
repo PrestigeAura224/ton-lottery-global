@@ -33,54 +33,41 @@
   </style>
 </head>
 <body>
-  <h1 data-i18n="pay_title">💳 Complete Your Payment</h1>
+  <h1>💳 Complete Your Payment</h1>
   <div class="box">
-    <p data-i18n="pay_desc">Please scan the QR code below or use the address to pay with TON.</p>
+    <p id="modeText"></p>
     <img id="qrImage" src="assets/ton-qr.png" class="qr" alt="TON QR Code">
-    <p><strong data-i18n="amount_label">Amount:</strong> <span id="amountText">1 TON</span></p>
-    <p><strong data-i18n="address_label">Address:</strong> <span id="walletAddress">Loading...</span></p>
-    <a href="spin.html" class="btn" data-i18n="pay_done">I've Paid, Continue</a>
+    <p><strong>Amount:</strong> <span id="amountText"></span></p>
+    <p><strong>Address:</strong> <span id="walletAddress">Loading...</span></p>
+    <a id="continueBtn" class="btn">I've Paid, Continue</a>
   </div>
 
   <script>
-    const API_KEY = "YOUR_API_KEY"; // Replace with your real NowPayments API Key
-    const AMOUNT = 1; // Default TON amount
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode") || "unlimited";
+    let round = parseInt(params.get("round") || "1");
 
-    async function createPayment() {
-      try {
-        const response = await fetch("https://api.nowpayments.io/v1/payment", {
-          method: "POST",
-          headers: {
-            "x-api-key": API_KEY,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            price_amount: AMOUNT,
-            price_currency: "ton",
-            pay_currency: "ton",
-            order_id: "order_" + Date.now(),
-            order_description: "PrestigeAura Lottery Spin"
-          })
-        });
+    let amount = 1; // default
+    let desc = "Unlimited Draw";
 
-        const data = await response.json();
-        if (data && data.pay_address) {
-          document.getElementById("walletAddress").innerText = data.pay_address;
-          if (data.payin_extra_id) {
-            document.getElementById("walletAddress").innerText += " (Memo: " + data.payin_extra_id + ")";
-          }
-          if (data.qr_code) {
-            document.getElementById("qrImage").src = data.qr_code;
-          }
-        } else {
-          document.getElementById("walletAddress").innerText = "Error generating address.";
-        }
-      } catch (error) {
-        document.getElementById("walletAddress").innerText = "Connection error.";
-      }
+    if (mode === "guaranteed") {
+      // 百分百模式按轮次递增金额
+      const amounts = [1, 3, 6, 12, 24];
+      amount = amounts[round - 1] || 1;
+      desc = `Guaranteed Draw - Round ${round}`;
     }
 
-    createPayment();
+    document.getElementById("modeText").innerText =
+      `Mode: ${desc}\nPay ${amount} TON to continue`;
+
+    document.getElementById("amountText").innerText = amount + " TON";
+
+    // 占位：实际 TON 地址 & 二维码由 NowPayments 动态生成
+    document.getElementById("walletAddress").innerText = "Dynamic Address (replace with API)";
+
+    // 支付完成后返回 spin.html
+    document.getElementById("continueBtn").href =
+      `spin.html?mode=${mode}&round=${round + 1}`;
   </script>
 </body>
 </html>
