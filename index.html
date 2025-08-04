@@ -2,43 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>PrestigeAura Global Lottery</title>
+  <title>PrestigeAura Lottery</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #f9f9f9; }
-    header { padding: 20px; }
-    .banner { width: 90%; max-width: 600px; margin: 20px auto; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    body { font-family: Arial, sans-serif; text-align: center; margin: 0; background: #fafafa; }
+    header { background: #fff; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    header img { height: 50px; }
+    .banner { width: 100%; max-width: 600px; margin: 20px auto; border-radius: 10px; }
+    h1 { font-size: 22px; margin: 20px 10px; }
+    p { font-size: 16px; margin: 10px; }
     .btn {
-      display: inline-block;
-      padding: 15px 30px;
-      margin-top: 20px;
+      display: block;
+      margin: 15px auto;
+      padding: 15px;
+      width: 80%;
+      max-width: 300px;
+      font-size: 18px;
+      color: white;
       background: linear-gradient(45deg, #007bff, #00c6ff);
-      color: #fff;
-      font-size: 20px;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: transform 0.2s;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
     }
-    .btn:hover { transform: scale(1.05); }
-    footer { margin-top: 30px; }
-    select { padding: 5px; font-size: 16px; }
+    .lang-box { margin: 20px; }
+    select { padding: 10px; font-size: 16px; }
   </style>
   <script src="js/i18n.js" defer></script>
 </head>
 <body>
   <header>
-    <img src="assets/logo.svg" alt="PrestigeAura Logo" style="width:150px;">
-    <h1 data-i18n="welcome_title">🎡 PrestigeAura Global Lottery</h1>
+    <img src="assets/logo.svg" alt="PrestigeAura Logo">
   </header>
-  <main>
-    <img src="assets/banner.jpg" alt="Lottery Banner" class="banner">
-    <p data-i18n="welcome_desc">
-      Pay TON and spin the wheel for your chance to win premium replica watches and prizes!
-    </p>
-    <a href="spin.html" class="btn" data-i18n="start_button">Start Lottery</a>
-  </main>
-  <footer>
-    <label data-i18n="choose_lang">🌍 Choose Language:</label>
+
+  <img src="assets/banner.jpg" alt="PrestigeAura Banner" class="banner">
+
+  <h1 data-i18n="welcome_title">🎡 PrestigeAura Global Lottery</h1>
+  <p data-i18n="welcome_desc">Pay TON and spin the wheel for your chance to win premium replica watches and prizes!</p>
+
+  <button class="btn" onclick="window.location.href='spin.html?mode=unlimited&round=1'" data-i18n="mode_unlimited">🎯 Unlimited Draw</button>
+  <button class="btn" onclick="window.location.href='spin.html?mode=guaranteed&round=1'" data-i18n="mode_guaranteed">💎 Guaranteed Draw</button>
+
+  <div class="lang-box">
+    <label for="languageSwitcher" data-i18n="choose_lang">🌍 Choose Language</label>
     <select id="languageSwitcher"></select>
-  </footer>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedLang = localStorage.getItem("selectedLang") || "en";
+      loadLanguage(savedLang);
+    });
+  </script>
 </body>
 </html>
+
