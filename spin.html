@@ -34,6 +34,20 @@
       max-width: 400px;
     }
     .popup h2 { margin: 0 0 10px; }
+    .leaderboard {
+      margin-top: 40px;
+      text-align: left;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    .leaderboard h3 { text-align: center; }
+    .leaderboard ul { list-style: none; padding: 0; }
+    .leaderboard li { background: #f1f1f1; margin: 5px 0; padding: 10px; border-radius: 8px; font-size: 14px; }
   </style>
   <script src="js/i18n.js" defer></script>
 </head>
@@ -48,6 +62,12 @@
     <h2 id="popupTitle">🎯 Jackpot Locked!</h2>
     <p id="popupText">Pay to unlock your chance at the jackpot!</p>
     <a id="payLink" href="#"><button class="btn-home">💳 Go Pay</button></a>
+  </div>
+
+  <!-- 假排行榜 -->
+  <div class="leaderboard">
+    <h3>🔥 Live Winners Feed</h3>
+    <ul id="leaderboardList"></ul>
   </div>
 
   <script>
@@ -100,9 +120,9 @@
         if (round < 4) {
           popupText.innerText = `🎯 太遗憾了！大奖已锁定。\n✅ 下一轮将去掉 "${currentPrizes[0]}"`;
         } else if (round === 4) {
-          popupText.innerText = "🎯 下一轮将揭晓黄金饰品！";
+          popupText.innerText = "🎯 下一轮大奖即将揭晓（黄金饰品）！";
         } else if (round === 5) {
-          popupText.innerText = "🎯 下一轮将揭晓复刻手表！";
+          popupText.innerText = "🎯 下一轮大奖即将揭晓（复刻手表）！";
         }
         payLink.href = `pay.html?mode=guaranteed&round=${round}`;
       } else {
@@ -110,6 +130,30 @@
         payLink.href = "pay.html?mode=unlimited";
       }
     };
+
+    // 假排行榜逻辑
+    const feed = [
+      "@alex just won a Rolex with 92 TON!",
+      "@maria got a Gold Necklace with 76 TON!",
+      "@chen almost won a Royal Oak!",
+      "@david used 12 TON and won a 60% Coupon!",
+      "@li took 24 TON shot for a watch!",
+      "@sofia got 50% Coupon with 6 TON!"
+    ];
+    const list = document.getElementById("leaderboardList");
+
+    function updateFeed() {
+      const msg = feed[Math.floor(Math.random() * feed.length)];
+      const li = document.createElement("li");
+      li.innerText = msg;
+      if (list.children.length > 5) {
+        list.removeChild(list.firstChild);
+      }
+      list.appendChild(li);
+    }
+
+    setInterval(updateFeed, 3000); // 每3秒刷新一次
+    updateFeed();
   </script>
 </body>
 </html>
