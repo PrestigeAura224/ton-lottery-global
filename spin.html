@@ -71,9 +71,29 @@
 <body>
   <h1 data-i18n="spin_title">🎡 PrestigeAura Lottery</h1>
 
-  <div class="wheel-container">
-    <canvas id="wheelCanvas" width="320" height="320"></canvas>
-    <div id="pointer"></div>
+<div class="wheel-container" style="position:relative;width:90vw;max-width:320px;margin:0 auto;">
+  <!-- 转盘画布 -->
+  <canvas id="wheelCanvas" width="320" height="320" 
+          style="z-index:1;position:relative;border-radius:50%;box-shadow:0 0 20px rgba(255,255,255,0.6);">
+  </canvas>
+  
+  <!-- 豪华金色指针 -->
+  <div id="pointer"
+       style="position:absolute;
+              top:-30px;
+              left:50%;
+              transform:translateX(-50%);
+              width:0;
+              height:0;
+              border-left:25px solid transparent;
+              border-right:25px solid transparent;
+              border-bottom:50px solid gold;
+              clip-path:polygon(50% 0%, 100% 100%, 0% 100%);
+              z-index:9999;
+              box-shadow:0 0 12px rgba(255,215,0,0.9);">
+  </div>
+</div>
+
   </div>
 
   <button id="spinBtn" data-i18n="spin_now">SPIN</button>
