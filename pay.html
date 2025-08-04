@@ -3,34 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <title>💳 Payment - PrestigeAura</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body { 
       font-family: Arial, sans-serif; 
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
       color: white; 
       text-align: center; 
-      padding: 20px; 
+      padding: 20px; margin:0;
     }
-    h1 { margin: 20px; font-size: 24px; }
+    h1 { margin: 20px; font-size: 22px; }
     .pay-box { 
       background: rgba(255,255,255,0.1); 
       padding: 20px; 
       border-radius: 12px; 
       display: inline-block; 
-      width: 90%;
-      max-width: 400px;
+      width: 90%; max-width: 400px;
     }
     .pay-box p { font-size: 18px; }
     button { 
       margin-top: 20px; 
       padding: 12px 25px; 
-      background: linear-gradient(45deg, #36d1dc, #5b86e5); 
-      color: white; 
-      border: none; 
-      border-radius: 8px; 
-      font-size: 18px; 
+      background: linear-gradient(45deg,#36d1dc,#5b86e5); 
+      color: white; border: none; 
+      border-radius: 8px; font-size: 18px; 
       cursor: pointer; 
+    }
+    a.btn-home {
+      display:inline-block; margin-top:15px; 
+      padding:10px 20px;
+      background: linear-gradient(45deg,#f7971e,#ffd200);
+      border-radius:30px; color:black;
+      text-decoration:none; font-size:16px;
     }
   </style>
 </head>
@@ -40,12 +44,13 @@
     <p id="payText">Processing...</p>
     <button id="confirmBtn" data-i18n="confirm_paid">✅ I have paid</button>
   </div>
+  <a href="index.html" class="btn-home" data-i18n="back_home">🏠 Back to Home</a>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="js/i18n.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // 检测语言
+      // 语言检测
       let lang;
       if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
         lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
@@ -62,25 +67,32 @@
       const mode = params.get("mode") || "unlimited";
       let round = parseInt(params.get("round") || "1");
 
-      const amounts = [1, 3, 6, 12, 24]; // 百分百模式金额
-      const unlimitedAmount = new Date().getDay() === 0 || new Date().getDay() === 6 ? 2 : 1; // 周末2TON，否则1TON
-      const prizes = ["Watch", "Gold"];
+      const guaranteedPrizes = ["Thanks","60% Coupon","50% Coupon","Gold","Watch"];
+      const amounts = [1,3,6,12,24]; // 百分百递增金额
+      const unlimitedAmount = ([0,6].includes(new Date().getDay())) ? 2 : 1; // 周末2 TON，否则1 TON
 
-      // 显示支付金额
-      let payAmount;
-      if (mode === "guaranteed") {
-        payAmount = amounts[round - 1] || 1;
-      } else {
-        payAmount = unlimitedAmount;
-      }
-
+      // 显示需支付金额
+      let payAmount = (mode === "guaranteed") ? amounts[round-1] : unlimitedAmount;
       document.getElementById("payText").innerText = 
-        (lang === "zh" ? "请支付 " : "Please pay ") + payAmount + " TON";
+        (lang==="zh" ? "请支付 " : "Please pay ") + payAmount + " TON";
 
-      // 模拟支付完成
+      // 模拟 NowPayments 接口
+      // ✅ 实际部署时可用 NowPayments API 替换
       document.getElementById("confirmBtn").onclick = () => {
-        const prize = prizes[Math.floor(Math.random() * prizes.length)];
-        window.location.href = `spin.html?mode=${mode}&round=${round+1}&prize=${prize}`;
+        let prize;
+        if (mode === "guaranteed") {
+          prize = guaranteedPrizes[round-1];
+          // 如果已经抽到第5次
+          if (round >= 5) {
+            window.location.href = `spin.html?mode=${mode}&round=${round}&prize=${prize}`;
+            return;
+          }
+        } else {
+          // 无限模式随机奖品
+          const unlimitedPrizes = ["Thanks","50% Coupon","60% Coupon","Gold","Watch"];
+          prize = unlimitedPrizes[Math.floor(Math.random()*unlimitedPrizes.length)];
+        }
+        window.location.href = `spin.html?mode=${mode}&round=${round}&prize=${prize}`;
       };
     });
   </script>
