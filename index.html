@@ -7,109 +7,62 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      background: #fafafa;
+      padding: 0;
+      color: white;
       text-align: center;
     }
-
-    header img {
-      width: 160px;  /* LOGO 稍大 */
-      height: auto;
-      margin-top: 10px;
-    }
-
-    .banner {
-      width: 85%;         /* 手机端接近全屏 */
-      max-width: 350px;   /* 最大宽度 */
-      height: auto;
-      border-radius: 10px;
-      margin: 10px auto;
-    }
-
-    h1 {
-      font-size: 20px;
-      margin: 10px 5px;
-    }
-
-    p {
-      font-size: 14px;
-      margin: 5px 15px;
-      color: #444;
-    }
-
-    .btn-group {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin: 15px 0;
-      flex-wrap: wrap; /* 太窄时自动换行 */
-    }
-
+    header { padding: 20px; }
+    img.logo { width: 80px; margin-bottom: 10px; }
+    img.banner { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; }
+    h1 { font-size: 24px; margin: 20px 0; }
     .btn {
-      flex: 1;
-      padding: 12px;
-      font-size: 16px;
-      color: white;
-      background: linear-gradient(45deg, #007bff, #00c6ff);
+      display: block;
+      width: 80%;
+      margin: 15px auto;
+      padding: 15px;
+      background: linear-gradient(45deg, #f7971e, #ffd200);
+      color: #000;
+      font-size: 20px;
+      font-weight: bold;
       border: none;
-      border-radius: 10px;
+      border-radius: 50px;
       cursor: pointer;
-      max-width: 150px;
-    }
-
-    /* 小屏幕竖屏优化 */
-    @media (max-width: 400px) {
-      .btn-group {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .btn {
-        max-width: 100%;
-      }
-    }
-
-    .lang-box {
-      margin-bottom: 15px;
-    }
-
-    select {
-      padding: 8px;
-      font-size: 14px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     }
   </style>
-  <script src="js/i18n.js" defer></script>
 </head>
 <body>
   <header>
-    <img src="assets/logo.png" alt="PrestigeAura Logo">
+    <img src="assets/logo.png" alt="Logo" class="logo">
+    <img src="assets/banner.png" alt="Banner" class="banner">
   </header>
 
-  <img src="assets/banner.png" alt="PrestigeAura Banner" class="banner">
+  <h1 data-i18n="choose_mode">请选择抽奖模式 / Choose Lottery Mode</h1>
 
-  <h1 data-i18n="welcome_title">🎡 PrestigeAura Global Lottery</h1>
-  <p data-i18n="welcome_desc">
-    Pay TON and spin the wheel for your chance to win premium replica watches and prizes!
-  </p>
+  <button class="btn" onclick="location.href='spin.html?mode=unlimited'" data-i18n="mode_unlimited">
+    🎯 无限抽奖
+  </button>
 
-  <div class="btn-group">
-    <button class="btn" onclick="window.location.href='spin.html?mode=unlimited&round=1'" data-i18n="mode_unlimited">🎯 Unlimited Draw</button>
-    <button class="btn" onclick="window.location.href='spin.html?mode=guaranteed&round=1'" data-i18n="mode_guaranteed">💎 Guaranteed Draw</button>
-  </div>
+  <button class="btn" onclick="location.href='spin.html?mode=guaranteed'" data-i18n="mode_guaranteed">
+    🎯 百分百中奖
+  </button>
 
-  <div class="lang-box">
-    <label for="languageSwitcher" data-i18n="choose_lang">🌍 Choose Language</label>
-    <select id="languageSwitcher"></select>
-  </div>
-
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="js/i18n.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const savedLang = localStorage.getItem("selectedLang") || "en";
-      loadLanguage(savedLang);
+      let lang;
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+        lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
+      } else {
+        lang = (navigator.language || "en").substring(0,2).toLowerCase();
+      }
+      const supported = ["en","zh","es","fr","de","ru","ar","ja","ko","hi","pt","it","tr","vi","id"];
+      if (!supported.includes(lang)) lang = "en";
+      localStorage.setItem("selectedLang", lang);
+      loadLanguage(lang);
     });
   </script>
 </body>
