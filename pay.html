@@ -2,100 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>💳 Pay with TON - PrestigeAura</title>
+  <title>💳 Payment - PrestigeAura</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; }
-    h1 { margin-top: 20px; }
-    .box {
-      background: #fff;
-      padding: 20px;
-      margin: 20px auto;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 400px;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 25px;
-      background: linear-gradient(45deg, #007bff, #00c6ff);
-      color: white;
-      font-size: 18px;
-      border-radius: 8px;
-      text-decoration: none;
-      margin-top: 20px;
-      cursor: pointer;
-    }
-    img.qr {
-      margin-top: 20px;
-      width: 200px;
-      border: 2px solid #eee;
-      border-radius: 10px;
-    }
-    #confirmBox {
-      display: none;
-      margin-top: 20px;
-      color: green;
-      font-size: 18px;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; background: #fafafa; text-align: center; padding: 20px; }
+    h1 { margin: 20px; }
+    .pay-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: inline-block; }
+    button { margin-top: 20px; padding: 12px 25px; background: green; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>💳 Complete Your Payment</h1>
-  <div class="box">
-    <p id="modeText"></p>
-    <p id="nextTip"></p>
-    <img id="qrImage" src="assets/ton-qr.png" class="qr" alt="TON QR Code">
-    <p><strong>Amount:</strong> <span id="amountText"></span></p>
-    <p><strong>Address:</strong> <span id="walletAddress">Loading...</span></p>
-    <button id="continueBtn" class="btn">I've Paid, Continue</button>
-    <div id="confirmBox">✅ Payment confirmed, redirecting...</div>
+  <h1 data-i18n="pay_title">💳 Payment Required</h1>
+  <div class="pay-box">
+    <p id="payText">Processing...</p>
+    <button id="confirmBtn" data-i18n="confirm_paid">✅ I have paid</button>
   </div>
 
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const mode = params.get("mode") || "unlimited";
-    let round = parseInt(params.get("round") || "1");
+    document.addEventListener("DOMContentLoaded", () => {
+      let lang;
+      if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
+        lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
+      } else {
+        lang = (navigator.language || "en").substring(0,2).toLowerCase();
+      }
+      const supported = ["en","zh","es","fr","de","ru","ar","ja","ko"];
+      if (!supported.includes(lang)) lang = "en";
 
-    // 默认金额和描述
-    let amount = 1;
-    let desc = "Unlimited Draw";
-    let nextTip = "";
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get("mode") || "unlimited";
+      let round = parseInt(params.get("round") || "1");
 
-    if (mode === "guaranteed") {
       const amounts = [1, 3, 6, 12, 24];
-      amount = amounts[round - 1] || 1;
-      desc = `Guaranteed Draw - Round ${round}`;
+      const prizes = ["Watch", "Gold"];
 
-      const tips = [
-        "✅ 下一轮将去掉“谢谢参与”",
-        "✅ 下一轮将去掉“5折优惠券”",
-        "✅ 下一轮将去掉“6折优惠券”",
-        "🎯 下一轮大奖即将揭晓（黄金饰品）",
-        "🎯 下一轮大奖即将揭晓（复刻手表）"
-      ];
-      nextTip = tips[round - 1] || "";
-    }
+      document.getElementById("payText").innerText = 
+        lang === "zh" ? `请支付 ${amounts[round-1]} TON` : `Please pay ${amounts[round-1]} TON`;
 
-    document.getElementById("modeText").innerText = `${desc}`;
-    document.getElementById("amountText").innerText = amount + " TON";
-    document.getElementById("walletAddress").innerText = "Dynamic Address (replace with API)";
-    document.getElementById("nextTip").innerText = nextTip;
-
-    // 假延迟确认逻辑
-    document.getElementById("continueBtn").onclick = () => {
-      document.getElementById("continueBtn").style.display = "none";
-      const confirmBox = document.getElementById("confirmBox");
-      confirmBox.style.display = "block";
-      confirmBox.innerText = "⏳ Confirming payment, please wait...";
-      
-      setTimeout(() => {
-        confirmBox.innerText = "✅ Payment confirmed, redirecting...";
-        setTimeout(() => {
-          window.location.href = `spin.html?mode=${mode}&round=${round + 1}`;
-        }, 2000);
-      }, 3000); // 3秒确认 + 2秒跳转
-    };
+      document.getElementById("confirmBtn").onclick = () => {
+        const prize = prizes[Math.floor(Math.random() * prizes.length)];
+        window.location.href = `spin.html?mode=${mode}&round=${round+1}&prize=${prize}`;
+      };
+    });
   </script>
 </body>
 </html>
