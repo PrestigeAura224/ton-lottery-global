@@ -14,16 +14,19 @@
     h1 { margin: 15px 0; font-size: 22px; }
     .wheel-container { position: relative; width: 90vw; max-width: 320px; }
     #wheelCanvas { width: 100%; height: auto; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
-    #pointer {
-      position: absolute;
-      top: -40px; left: 50%;
-      transform: translateX(-50%);
-      width: 0; height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-bottom: 40px solid gold;
-      border-radius: 50% 50% 0 0;
-    }
+   #pointer {
+  position: absolute;
+  top: -45px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 25px solid transparent;
+  border-right: 25px solid transparent;
+  border-bottom: 50px solid gold;
+  border-radius: 50% 50% 0 0; /* 圆弧底 */
+  box-shadow: 0 0 10px rgba(255,215,0,0.7);
+}
     #spinBtn {
       margin: 15px 0;
       padding: 15px 30px;
