@@ -7,7 +7,7 @@
     body { font-family: Arial, sans-serif; text-align: center; background: #fafafa; }
     h1 { margin-top: 20px; }
     #wheel { width: 300px; margin: 30px auto; border: 4px solid #007bff; border-radius: 50%; }
-    #spinBtn, .btn-pay, .btn-home {
+    #spinBtn, .btn-home {
       padding: 15px 30px;
       font-size: 20px;
       background: linear-gradient(45deg, #00c6ff, #007bff);
@@ -15,10 +15,9 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      transition: transform 0.2s;
       margin: 10px;
     }
-    #spinBtn:hover, .btn-pay:hover, .btn-home:hover { transform: scale(1.05); }
+    #spinBtn:hover, .btn-home:hover { transform: scale(1.05); }
     .popup {
       display: none;
       position: fixed;
@@ -42,35 +41,30 @@
   <h1 id="modeTitle">🎡 Spin the Wheel!</h1>
   <canvas id="wheel" width="300" height="300"></canvas>
   <br>
-  <button id="spinBtn" data-i18n="spin_button">Start Spin</button>
-  <a href="index.html"><button class="btn-home" data-i18n="back_home">🏠 Back to Home</button></a>
+  <button id="spinBtn">Start Spin</button>
+  <a href="index.html"><button class="btn-home">🏠 Back to Home</button></a>
 
-  <!-- 弹窗 -->
   <div id="popup" class="popup">
     <h2 id="popupTitle">🎯 Jackpot Locked!</h2>
     <p id="popupText">Pay to unlock your chance at the jackpot!</p>
-    <a id="payLink" href="pay.html?mode=unlimited"><button class="btn-pay">💳 Go Pay</button></a>
+    <a id="payLink" href="#"><button class="btn-home">💳 Go Pay</button></a>
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get("mode") || "unlimited";
-    let round = parseInt(urlParams.get("round") || "1");
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode") || "unlimited";
+    let round = parseInt(params.get("round") || "1");
 
     const wheelCanvas = document.getElementById("wheel");
     const ctx = wheelCanvas.getContext("2d");
 
-    const prizes_unlimited = [
-      "Replica Watch", "Gold Jewelry", "60% Coupon", "50% Coupon", "Thanks"
-    ];
+    const prizesUnlimited = ["Watch", "Gold", "60% Coupon", "50% Coupon", "Thanks"];
+    const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
 
-    const prizes_guaranteed = [
-      "Thanks", "50% Coupon", "60% Coupon", "Gold Jewelry", "Replica Watch"
-    ];
-
-    let currentPrizes = mode === "guaranteed" ? prizes_guaranteed : prizes_unlimited;
+    let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
 
     function drawWheel(prizes) {
+      ctx.clearRect(0, 0, 300, 300);
       const slices = prizes.length;
       const angleStep = (2 * Math.PI) / slices;
       prizes.forEach((prize, i) => {
@@ -101,11 +95,16 @@
     const payLink = document.getElementById("payLink");
 
     spinBtn.onclick = () => {
-      // 假动画停在大奖
       popup.style.display = "block";
       if (mode === "guaranteed") {
-        popupText.innerText = "🎯 太遗憾了！大奖已锁定。\n✅ 下一轮将去掉\"" + currentPrizes[0] + "\"。";
-        payLink.href = "pay.html?mode=guaranteed&round=" + round;
+        if (round < 4) {
+          popupText.innerText = `🎯 太遗憾了！大奖已锁定。\n✅ 下一轮将去掉 "${currentPrizes[0]}"`;
+        } else if (round === 4) {
+          popupText.innerText = "🎯 下一轮将揭晓黄金饰品！";
+        } else if (round === 5) {
+          popupText.innerText = "🎯 下一轮将揭晓复刻手表！";
+        }
+        payLink.href = `pay.html?mode=guaranteed&round=${round}`;
       } else {
         popupText.innerText = "🎯 大奖已锁定！完成支付即可揭晓是否获得大奖。";
         payLink.href = "pay.html?mode=unlimited";
@@ -114,4 +113,3 @@
   </script>
 </body>
 </html>
-
