@@ -3,54 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <title>🎡 PrestigeAura Spin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
       color: white;
-      text-align: center;
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center;
     }
-    h1 { margin: 20px 0; font-size: 22px; font-weight: bold; }
-    .wheel-container { position: relative; margin: 0 auto; width: 320px; height: 320px; }
-    #wheelCanvas { border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+    h1 { margin: 15px 0; font-size: 22px; }
+    .wheel-container { position: relative; width: 90vw; max-width: 320px; }
+    #wheelCanvas { width: 100%; height: auto; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
     #pointer {
-      position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+      position: absolute;
+      top: -35px; left: 50%;
+      transform: translateX(-50%);
       width: 0; height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-bottom: 30px solid gold;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-bottom: 40px solid gold;
+      border-radius: 50% 50% 0 0;
     }
     #spinBtn {
-      margin-top: 20px; padding: 15px 40px; font-size: 20px; font-weight: bold;
-      color: #fff; background: linear-gradient(45deg, #f7971e, #ffd200);
-      border: none; border-radius: 50px; cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    .popup {
-      display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
-      background: #fff; color: black; padding: 20px; border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4); z-index: 1000; width: 80%; max-width: 400px;
-    }
-    .popup button {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
+      margin: 15px 0;
+      padding: 15px 30px;
+      font-size: 18px;
+      background: linear-gradient(45deg,#f7971e,#ffd200);
+      border: none; border-radius: 50px;
+      font-weight: bold; color: #000;
       cursor: pointer;
     }
-    .leaderboard {
-      margin: 25px auto; max-width: 360px;
-      background: rgba(255,255,255,0.1); padding: 15px; border-radius: 12px;
-    }
-    .leaderboard ul { list-style: none; padding: 0; margin: 0; font-size: 14px; text-align: left; }
-    .leaderboard li { margin: 5px 0; padding: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; }
     .btn-home {
-      display: inline-block; margin-top: 15px; padding: 10px 20px;
-      background: linear-gradient(45deg, #36d1dc, #5b86e5);
-      color: white; border: none; border-radius: 30px; font-size: 16px;
-      cursor: pointer; text-decoration: none;
+      margin: 5px;
+      padding: 10px 20px;
+      background: linear-gradient(45deg,#36d1dc,#5b86e5);
+      border: none; border-radius: 30px;
+      color: white; text-decoration: none;
+    }
+    .popup {
+      display: none; position: fixed;
+      top: 30%; left: 50%;
+      transform: translate(-50%, -30%);
+      background: white; color: black;
+      padding: 20px; border-radius: 12px;
+      width: 80%; max-width: 400px;
+      z-index: 1000; text-align: center;
+    }
+    .popup button {
+      margin: 8px; padding: 10px 20px;
+      border: none; border-radius: 8px; cursor: pointer;
+    }
+    .leaderboard {
+      margin: 20px auto; width: 90%;
+      background: rgba(255,255,255,0.1);
+      padding: 10px; border-radius: 10px;
+    }
+    .leaderboard ul { list-style: none; padding: 0; margin: 0; }
+    .leaderboard li {
+      margin: 5px 0; padding: 5px;
+      background: rgba(255,255,255,0.2); border-radius: 5px;
     }
   </style>
 </head>
@@ -63,10 +75,8 @@
   </div>
 
   <button id="spinBtn" data-i18n="spin_now">SPIN</button>
-  <br>
   <a href="index.html" class="btn-home" data-i18n="back_home">🏠 Back to Home</a>
 
-  <!-- 弹窗 -->
   <div id="popup" class="popup">
     <h2 id="popupTitle" data-i18n="result_title">🎯 Result</h2>
     <p id="popupText">Processing...</p>
@@ -74,13 +84,11 @@
     <button onclick="document.getElementById('popup').style.display='none'" style="background:red;color:white;" data-i18n="close">❌ Close</button>
   </div>
 
-  <!-- 假排行榜 -->
   <div class="leaderboard">
     <h3 data-i18n="live_feed">🔥 Live Winners Feed</h3>
     <ul id="leaderboardList"></ul>
   </div>
 
-  <!-- 音效 -->
   <audio id="bgMusic" src="assets/bg-music.mp3" loop></audio>
   <audio id="tickSound" src="assets/tick.mp3"></audio>
   <audio id="winSound" src="assets/win.mp3"></audio>
@@ -89,17 +97,6 @@
   <script src="js/i18n.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      let lang;
-      if (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code) {
-        lang = Telegram.WebApp.initDataUnsafe.user.language_code.substring(0,2).toLowerCase();
-      } else {
-        lang = (navigator.language || "en").substring(0,2).toLowerCase();
-      }
-      const supported = ["en","zh","es","fr","de","ru","ar","ja","ko","hi","pt","it","tr","vi","id"];
-      if (!supported.includes(lang)) lang = "en";
-      localStorage.setItem("selectedLang", lang);
-      loadLanguage(lang);
-
       const bgMusic = document.getElementById("bgMusic");
       const tickSound = document.getElementById("tickSound");
       const winSound = document.getElementById("winSound");
@@ -109,39 +106,56 @@
 
       const canvas = document.getElementById("wheelCanvas");
       const ctx = canvas.getContext("2d");
+
       const params = new URLSearchParams(window.location.search);
       const mode = params.get("mode") || "unlimited";
       let round = parseInt(params.get("round") || "1");
       const prizeParam = params.get("prize");
 
-      const prizesUnlimited = ["Watch", "Gold", "60% Coupon", "50% Coupon", "Thanks"];
-      const prizesGuaranteed = ["Thanks", "50% Coupon", "60% Coupon", "Gold", "Watch"];
-      let currentPrizes = mode === "guaranteed" ? prizesGuaranteed.slice(round - 1) : prizesUnlimited;
+      const guaranteedSequence = ["Thanks","60% Coupon","50% Coupon","Gold","Watch"];
+      const prizesUnlimited = ["Watch","Gold","60% Coupon","50% Coupon","Thanks"];
 
+      let currentPrizes = (mode === "guaranteed") ? guaranteedSequence.slice(round-1) : prizesUnlimited;
+
+      // 如果从支付页返回，显示中奖结果
       if (prizeParam) {
         popup.style.display = "block";
-        popupText.innerText = (lang==="zh" ? "🎉 恭喜你获得了 " : "🎉 Congratulations! You won ") + prizeParam + 
-          (mode==="guaranteed" ? 
-            (lang==="zh" ? "！下一轮将去掉 \""+currentPrizes[0]+"\"" : "! Next round removes \""+currentPrizes[0]+"\".") : 
-            (lang==="zh" ? "！再来一次？下一次也许就是大奖！" : "! Try again — maybe next time is the jackpot!")
-          );
+        if (mode === "guaranteed") {
+          if (prizeParam === "Gold" || prizeParam === "Watch") {
+            popupText.innerText = `🎉 恭喜抽中大奖：${prizeParam}！`;
+          } else {
+            popupText.innerText = `🎉 恭喜你获得：${prizeParam}！ 下一轮将去掉 "${prizeParam}"`;
+          }
+          continueBtn.onclick = () => {
+            if (round >= 5) {
+              alert("你已取完所有大奖，可前往无限抽奖或邀请3人解锁新资格。");
+              location.href = "index.html";
+            } else {
+              location.href = `pay.html?mode=guaranteed&round=${round}`;
+            }
+          };
+        } else {
+          popupText.innerText = `🎉 恭喜你获得：${prizeParam}！ 再来一次？下一次也许就是大奖！`;
+          continueBtn.onclick = () => location.href = "pay.html?mode=unlimited";
+        }
       }
 
+      // 绘制转盘
       function drawWheel(prizes) {
         const slices = prizes.length;
         const angleStep = (2 * Math.PI) / slices;
-        for (let i = 0; i < slices; i++) {
+        for (let i=0; i<slices; i++) {
           const startAngle = i * angleStep;
           const endAngle = startAngle + angleStep;
           ctx.beginPath();
-          ctx.moveTo(160, 160);
-          ctx.arc(160, 160, 160, startAngle, endAngle);
+          ctx.moveTo(160,160);
+          ctx.arc(160,160,160,startAngle,endAngle);
           ctx.fillStyle = i % 2 === 0 ? "#f7971e" : "#36d1dc";
           ctx.fill();
           ctx.stroke();
           ctx.save();
-          ctx.translate(160, 160);
-          ctx.rotate(startAngle + angleStep / 2);
+          ctx.translate(160,160);
+          ctx.rotate(startAngle + angleStep/2);
           ctx.fillStyle = "#fff";
           ctx.font = "bold 14px Arial";
           ctx.textAlign = "right";
@@ -151,6 +165,7 @@
       }
       drawWheel(currentPrizes);
 
+      // 点击开始抽奖
       document.getElementById("spinBtn").onclick = () => {
         bgMusic.play();
         let angle = 0, spinTime = 0, spinTimeTotal = 4000;
@@ -159,19 +174,17 @@
           if (spinTime >= spinTimeTotal) {
             winSound.play();
             popup.style.display = "block";
-            popupText.innerText = lang==="zh" ? "大奖已锁定！完成支付揭晓结果" : "Jackpot locked! Complete payment to reveal.";
-            continueBtn.onclick = () => {
-              location.href = `pay.html?mode=${mode}&round=${round}`;
-            };
+            popupText.innerText = "🎯 大奖已锁定！请完成支付揭晓结果";
+            continueBtn.onclick = () => location.href = `pay.html?mode=${mode}&round=${round}`;
             return;
           }
           tickSound.play();
           angle += 0.35 + Math.random() * 0.05;
-          ctx.clearRect(0, 0, 320, 320);
+          ctx.clearRect(0,0,320,320);
           ctx.save();
-          ctx.translate(160, 160);
+          ctx.translate(160,160);
           ctx.rotate(angle);
-          ctx.translate(-160, -160);
+          ctx.translate(-160,-160);
           drawWheel(currentPrizes);
           ctx.restore();
           requestAnimationFrame(rotate);
@@ -179,6 +192,7 @@
         rotate();
       };
 
+      // 假排行榜
       const feed = [
         "@alex won a Replica Rolex!",
         "@maria got a Gold Necklace!",
