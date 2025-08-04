@@ -8,8 +8,7 @@
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      color: white;
-      margin: 0; padding: 0;
+      color: white; margin: 0; padding: 0;
       display: flex; flex-direction: column; align-items: center;
     }
     h1 { margin: 15px 0; font-size: 22px; }
@@ -17,7 +16,7 @@
     #wheelCanvas { width: 100%; height: auto; border-radius: 50%; box-shadow: 0 0 20px rgba(255,255,255,0.6); }
     #pointer {
       position: absolute;
-      top: -35px; left: 50%;
+      top: -40px; left: 50%;
       transform: translateX(-50%);
       width: 0; height: 0;
       border-left: 20px solid transparent;
@@ -111,13 +110,20 @@
       const mode = params.get("mode") || "unlimited";
       let round = parseInt(params.get("round") || "1");
       const prizeParam = params.get("prize");
+      let prevPrize = params.get("prevPrize");
 
       const guaranteedSequence = ["Thanks","60% Coupon","50% Coupon","Gold","Watch"];
-      const prizesUnlimited = ["Watch","Gold","60% Coupon","50% Coupon","Thanks"];
+      let currentPrizes = (mode === "guaranteed") 
+          ? guaranteedSequence.slice(round-1) 
+          : ["Watch","Gold","60% Coupon","50% Coupon","Thanks"];
 
-      let currentPrizes = (mode === "guaranteed") ? guaranteedSequence.slice(round-1) : prizesUnlimited;
+      // 从上一轮移除已抽中选项
+      if (mode === "guaranteed" && prevPrize) {
+        const index = currentPrizes.indexOf(prevPrize);
+        if (index !== -1) currentPrizes.splice(index,1);
+      }
 
-      // 如果从支付页返回，显示中奖结果
+      // 显示中奖结果
       if (prizeParam) {
         popup.style.display = "block";
         if (mode === "guaranteed") {
@@ -131,7 +137,7 @@
               alert("你已取完所有大奖，可前往无限抽奖或邀请3人解锁新资格。");
               location.href = "index.html";
             } else {
-              location.href = `pay.html?mode=guaranteed&round=${round}`;
+              location.href = `pay.html?mode=guaranteed&round=${round+1}&prevPrize=${prizeParam}`;
             }
           };
         } else {
@@ -175,7 +181,7 @@
             winSound.play();
             popup.style.display = "block";
             popupText.innerText = "🎯 大奖已锁定！请完成支付揭晓结果";
-            continueBtn.onclick = () => location.href = `pay.html?mode=${mode}&round=${round}`;
+            continueBtn.onclick = () => location.href = `pay.html?mode=${mode}&round=${round}&prevPrize=${prevPrize||''}`;
             return;
           }
           tickSound.play();
@@ -213,4 +219,3 @@
   </script>
 </body>
 </html>
-
