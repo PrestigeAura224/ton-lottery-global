@@ -1,0 +1,21 @@
+{
+  "welcome_title": "🎡 PrestigeAura Global Lottery",
+  "welcome_desc": "Pay TON and spin the wheel for your chance to win premium replica watches and prizes!",
+  "start_button": "Start Lottery",
+  "choose_lang": "🌍 Choose Language",
+  "spin_title": "🎡 Try Your Luck!",
+  "spin_button": "Spin Now",
+  "popup_congrats": "🎉 Congratulations!",
+  "leaderboard_title": "🔥 Today's Top Players",
+  "pay_title": "💳 Complete Your Payment",
+  "pay_desc": "Please scan the QR code below or use the address to pay with TON.",
+  "amount_label": "Amount:",
+  "address_label": "Address:",
+  "pay_done": "I've Paid, Continue",
+  "back_home": "🏠 Back to Home",
+  "prize_watch": "Replica Luxury Watch ($1000)",
+  "prize_gold": "Gold Jewelry ($500)",
+  "prize_coupon60": "60% Discount Coupon",
+  "prize_coupon50": "50% Discount Coupon",
+  "prize_thanks": "Thanks for Participating"
+}
