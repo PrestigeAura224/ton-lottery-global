@@ -23,12 +23,20 @@
       border-radius: 8px;
       text-decoration: none;
       margin-top: 20px;
+      cursor: pointer;
     }
     img.qr {
       margin-top: 20px;
       width: 200px;
       border: 2px solid #eee;
       border-radius: 10px;
+    }
+    #confirmBox {
+      display: none;
+      margin-top: 20px;
+      color: green;
+      font-size: 18px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -40,7 +48,8 @@
     <img id="qrImage" src="assets/ton-qr.png" class="qr" alt="TON QR Code">
     <p><strong>Amount:</strong> <span id="amountText"></span></p>
     <p><strong>Address:</strong> <span id="walletAddress">Loading...</span></p>
-    <a id="continueBtn" class="btn">I've Paid, Continue</a>
+    <button id="continueBtn" class="btn">I've Paid, Continue</button>
+    <div id="confirmBox">✅ Payment confirmed, redirecting...</div>
   </div>
 
   <script>
@@ -54,12 +63,10 @@
     let nextTip = "";
 
     if (mode === "guaranteed") {
-      // 百分百必中模式金额递增
       const amounts = [1, 3, 6, 12, 24];
       amount = amounts[round - 1] || 1;
       desc = `Guaranteed Draw - Round ${round}`;
 
-      // 下一轮提示逻辑
       const tips = [
         "✅ 下一轮将去掉“谢谢参与”",
         "✅ 下一轮将去掉“5折优惠券”",
@@ -75,10 +82,20 @@
     document.getElementById("walletAddress").innerText = "Dynamic Address (replace with API)";
     document.getElementById("nextTip").innerText = nextTip;
 
-    // 支付完成后进入下一轮
-    document.getElementById("continueBtn").href =
-      `spin.html?mode=${mode}&round=${round + 1}`;
+    // 假延迟确认逻辑
+    document.getElementById("continueBtn").onclick = () => {
+      document.getElementById("continueBtn").style.display = "none";
+      const confirmBox = document.getElementById("confirmBox");
+      confirmBox.style.display = "block";
+      confirmBox.innerText = "⏳ Confirming payment, please wait...";
+      
+      setTimeout(() => {
+        confirmBox.innerText = "✅ Payment confirmed, redirecting...";
+        setTimeout(() => {
+          window.location.href = `spin.html?mode=${mode}&round=${round + 1}`;
+        }, 2000);
+      }, 3000); // 3秒确认 + 2秒跳转
+    };
   </script>
 </body>
 </html>
-
